@@ -1,0 +1,51 @@
+.card{
+  float:left;
+  display:block;
+  width:55px;
+  height:80px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  margin: 2px;
+  cursor: pointer;
+  background-color: #282c34;
+}
+
+.cardState{
+  font-size: 8px;
+}
+.card_back{ background-image: url(../../assets/card_back.png);background-size:55px 80px; }
+.card_01{ background-image: url(../../assets/unit_cards/unit_01.png);background-size:55px 80px; }
+.card_02{ background-image: url(../../assets/unit_cards/unit_02.png);background-size:55px 80px; }
+.card_03{ background-image: url(../../assets/unit_cards/unit_03.png);background-size:55px 80px; }
+.card_04{ background-image: url(../../assets/unit_cards/unit_04.png);background-size:55px 80px; }
+.card_05{ background-image: url(../../assets/unit_cards/unit_05.png);background-size:55px 80px; }
+.card_06{ background-image: url(../../assets/unit_cards/unit_06.png);background-size:55px 80px; }
+.card_07{ background-image: url(../../assets/unit_cards/unit_07.png);background-size:55px 80px; }
+.card_08{ background-image: url(../../assets/unit_cards/unit_08.png);background-size:55px 80px; }
+.card_09{ background-image: url(../../assets/unit_cards/unit_09.png);background-size:55px 80px; }
+.card_10{ background-image: url(../../assets/unit_cards/unit_10.png);background-size:55px 80px; }
+.card_11{ background-image: url(../../assets/unit_cards/unit_11.png);background-size:55px 80px; }
+.card_12{ background-image: url(../../assets/unit_cards/unit_12.png);background-size:55px 80px; }
+.card_13{ background-image: url(../../assets/unit_cards/unit_13.png);background-size:55px 80px; }
+.card_14{ background-image: url(../../assets/unit_cards/unit_14.png);background-size:55px 80px; }
+.card_15{ background-image: url(../../assets/unit_cards/unit_15.png);background-size:55px 80px; }
+.card_16{ background-image: url(../../assets/unit_cards/unit_16.png);background-size:55px 80px; }
+.card_17{ background-image: url(../../assets/unit_cards/unit_17.png);background-size:55px 80px; }
+.card_18{ background-image: url(../../assets/unit_cards/unit_18.png);background-size:55px 80px; }
+.card_19{ background-image: url(../../assets/unit_cards/unit_19.png);background-size:55px 80px; }
+.card_20{ background-image: url(../../assets/unit_cards/unit_20.png);background-size:55px 80px; }
+.card_21{ background-image: url(../../assets/unit_cards/unit_21.png);background-size:55px 80px; }
+.card_22{ background-image: url(../../assets/unit_cards/unit_22.png);background-size:55px 80px; }
+.card_23{ background-image: url(../../assets/unit_cards/unit_23.png);background-size:55px 80px; }
+.card_24{ background-image: url(../../assets/unit_cards/unit_24.png);background-size:55px 80px; }
+.card_25{ background-image: url(../../assets/unit_cards/unit_25.png);background-size:55px 80px; }
+.card_26{ background-image: url(../../assets/unit_cards/unit_26.png);background-size:55px 80px; }
+.card_27{ background-image: url(../../assets/unit_cards/unit_27.png);background-size:55px 80px; }
+.card_28{ background-image: url(../../assets/unit_cards/unit_28.png);background-size:55px 80px; }
+.card_29{ background-image: url(../../assets/unit_cards/unit_29.png);background-size:55px 80px; }
+.card_30{ background-image: url(../../assets/unit_cards/unit_30.png);background-size:55px 80px; }
+.card_31{ background-image: url(../../assets/unit_cards/unit_31.png);background-size:55px 80px; }
+.card_32{ background-image: url(../../assets/unit_cards/unit_32.png);background-size:55px 80px; }
+.card_33{ background-image: url(../../assets/unit_cards/unit_33.png);background-size:55px 80px; }
+.card_34{ background-image: url(../../assets/unit_cards/unit_34.png);background-size:55px 80px; }
+.card_35{ background-image: url(../../assets/unit_cards/unit_35.png);background-size:55px 80px; }

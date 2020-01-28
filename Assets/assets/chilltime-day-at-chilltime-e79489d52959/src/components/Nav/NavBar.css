@@ -1,0 +1,22 @@
+.NavBar{
+    height: 60px;
+    line-height: 60px;
+    background-color: #1a82d4;
+    color: white;
+    cursor: pointer;
+}
+
+.Pages-wrapper{
+    display: grid;
+    grid-auto-flow: column;
+    width: 350px;
+    margin: auto;
+}
+
+.Page-item{
+
+}
+
+.active{
+    color: rgb(168, 168, 168);
+}

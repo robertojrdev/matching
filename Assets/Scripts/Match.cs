@@ -17,6 +17,7 @@ public class Match : MonoBehaviour
     [SerializeField] private Text textTime;
     [SerializeField] private Text textTries;
     [SerializeField] private Text textPlayer;
+    [SerializeField] private Transform foundCardsHolder;
 
     private List<Card> cards = new List<Card>();
     private HashSet<Card> selectedCards = new HashSet<Card>();
@@ -48,6 +49,8 @@ public class Match : MonoBehaviour
         startTime = Time.time;
         triesCount = 0;
         correctTries = 0;
+        textTries.text = TEXT_TRIES + triesCount.ToString("D2");
+
     }
 
     [ContextMenu("Reveal")]
@@ -61,12 +64,18 @@ public class Match : MonoBehaviour
 
     public void ClearCards()
     {
+        //remove all cards
         for (int i = 0; i < cards.Count; i++)
         {
             Destroy(cards[i].gameObject);
         }
-
         cards.Clear();
+
+        //clear found cards deck
+        foreach (Transform child in foundCardsHolder)
+        {
+            child.GetComponent<Card>().image.sprite = null;
+        }
     }
 
     private void InstantiateNewCards()
@@ -169,8 +178,16 @@ public class Match : MonoBehaviour
 
         if (cardsMatch) //CORRECT
         {
+            int id = 0;
             foreach (var card in selectedCards)
-                card.MatchFound();
+            {
+                card.MatchFound(id * 0.1f);
+                id++;
+            }
+
+            //Add card to found cards deck
+            var foundCard = foundCardsHolder.GetChild(correctTries).GetComponent<Card>();
+            foundCard.SetAsFoundCard(img, .7f);
 
             correctTries++;
         }

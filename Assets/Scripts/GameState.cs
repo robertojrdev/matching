@@ -29,8 +29,9 @@ public class GameState
         var newScore = Player.GetScore(time, tries);
         var player = Players.Find(x => x.name == name);
 
-        if (player.score < newScore)
+        if (player.score == 0 || player.score > newScore) //bigger score is bad
         {
+            Debug.Log("updated score");
             player.time = time;
             player.tries = tries;
             return true;

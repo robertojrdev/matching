@@ -45,11 +45,10 @@ public class GameManager : MonoBehaviour
 
     private void LoadGameOrDefault()
     {
-        if (PlayerPrefs.HasKey(SAVE_GAME))
+        if (PlayerPrefs.HasKey(SAVE_GAME) && !string.IsNullOrEmpty(PlayerPrefs.GetString(SAVE_GAME)))
         {
             var jsonString = PlayerPrefs.GetString(SAVE_GAME);
             gameState = JsonUtility.FromJson<GameState>(jsonString);
-            print(jsonString);
         }
         else
         {
@@ -61,7 +60,6 @@ public class GameManager : MonoBehaviour
     {
         var json = JsonUtility.ToJson(gameState);
         PlayerPrefs.SetString(SAVE_GAME, json);
-        print(json);
     }
 
     public static void StartSession(string playerName)
@@ -97,14 +95,12 @@ public class GameManager : MonoBehaviour
 
         instance.gameState.UpdateScore(instance.currentPlayer, time, tries);
 
-        foreach (var item in instance.gameState.Players)
-        {
-            print(item.name);
-            print(item.score);
-            print(item.time);
-            print(item.tries);
-        }
-
         instance.SaveGame();
+    }
+
+    [ContextMenu("Reset Saved Games")]
+    public void ResetSavedGames()
+    {
+        PlayerPrefs.SetString(SAVE_GAME, "");
     }
 }

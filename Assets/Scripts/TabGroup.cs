@@ -1,8 +1,14 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Controll child Tabs
+/// </summary>
 public class TabGroup : MonoBehaviour
 {
-    [SerializeField] private Tab initialTab;
+    /// <summary>
+    /// The first tab to be selected at start, if null nothing will be selected
+    /// </summary>
+    [SerializeField] private Tab initialTab; 
 
     private Tab[] tabs;
     private Tab currentActive;

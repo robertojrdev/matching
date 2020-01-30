@@ -25,6 +25,7 @@ public class LeaderBoard : MonoBehaviour
         if (!GameManager.instance)
             return;
 
+        //get all players and sort by score
         var players = GameManager.instance.gameState.Players.
             FindAll(x => x.score != 0).
             OrderBy(x => x.score).
@@ -32,7 +33,7 @@ public class LeaderBoard : MonoBehaviour
 
         for (int i = 0; i < players.Length; i++)
         {
-            if (players[i].score == 0)
+            if (players[i].score == 0) //hide players without score
                 continue;
 
             var line = Instantiate(linePrefab, container);

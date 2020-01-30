@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Used to hold the game state and also can be serialized and saved as a JSON
+/// </summary>
 [System.Serializable]
 public class GameState
 {
@@ -41,6 +44,9 @@ public class GameState
     }
 }
 
+/// <summary>
+/// Class to hold player scores
+/// </summary>
 [System.Serializable]
 public class Player
 {
@@ -56,6 +62,10 @@ public class Player
         this.tries = tries;
     }
 
+    /// <summary>
+    /// Calculate player score based on time and tries
+    /// </summary>
+    /// <returns>score result - tries * 5 + time</returns>
     public static int GetScore(int time, int tries) => tries * 5 + time;
     
 }

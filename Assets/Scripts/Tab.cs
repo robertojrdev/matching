@@ -5,8 +5,10 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using Coffee.UIExtensions;
 
+//used this instead of the base class Button to have more controll over the pressed state and have a cleaner inspector.
 public class Tab : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    #region Inspector Variables
     [SerializeField] private Image background;
     [SerializeField] private Color backgroundDefaultColor = Color.white;
     [SerializeField] private Color backgroundHoverColor = Color.gray;
@@ -14,10 +16,13 @@ public class Tab : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IP
     [SerializeField] private Color textDefaultColor = Color.black;
     [SerializeField] private Color textSelectedColor = Color.white;
     [SerializeField] private UIGradient gradient;
+    #endregion
 
+    #region Unity Events
     [SerializeField] private UnityEvent onClick;
     [SerializeField] private UnityEvent onSelected;
     [SerializeField] private UnityEvent onLoseFocus;
+    #endregion
 
     public Action<Tab> onClickEvent;
 

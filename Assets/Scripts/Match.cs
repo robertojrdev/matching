@@ -7,9 +7,12 @@ using System.Linq;
 
 public class Match : MonoBehaviour
 {
+    #region Constant Variables
     private const string TEXT_TIME = "Elapsed time: ";
     private const string TEXT_TRIES = "Tries: ";
+    #endregion
 
+    #region Inspector Variables
     public int cardsAmount = 28;
     [SerializeField] private Transform winView;
     [SerializeField] private Transform cardsView;
@@ -18,7 +21,9 @@ public class Match : MonoBehaviour
     [SerializeField] private Text textTries;
     [SerializeField] private Text textPlayer;
     [SerializeField] private Transform foundCardsHolder;
+    #endregion
 
+    #region Private Variables
     private List<Card> cards = new List<Card>();
     private HashSet<Card> selectedCards = new HashSet<Card>();
     private int pairsAmount;
@@ -26,6 +31,7 @@ public class Match : MonoBehaviour
     private float startTime = 0;
     private int triesCount = 0;
     private int correctTries = 0;
+    #endregion
 
     private void Update()
     {
@@ -42,15 +48,16 @@ public class Match : MonoBehaviour
     public void NewMatch()
     {
         winView.gameObject.SetActive(false);
+
         ClearCards();
         InstantiateNewCards();
         ShuffleCards();
+
         isGameActive = true;
         startTime = Time.time;
         triesCount = 0;
         correctTries = 0;
         textTries.text = TEXT_TRIES + triesCount.ToString("D2");
-
     }
 
     [ContextMenu("Reveal")]
@@ -130,6 +137,7 @@ public class Match : MonoBehaviour
         var randList = cards.OrderBy(x => UnityEngine.Random.value).ToArray();
         for (int i = 0; i < randList.Length; i++)
         {
+            //changing the hierarchy order is enough to shuffle
             randList[i].transform.SetSiblingIndex(i);
         }
     }

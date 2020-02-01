@@ -13,7 +13,8 @@ public class Match : MonoBehaviour
     #endregion
 
     #region Inspector Variables
-    public int cardsAmount = 28;
+    public int cardsAmount = 28; //to avoid magic numbers and allow more game setups
+    public int pairsSize = 3; //to avoid magic numbers and allow more game setups
     [SerializeField] private Transform winView;
     [SerializeField] private Transform cardsView;
     [SerializeField] private Card cardPrefab;
@@ -26,42 +27,89 @@ public class Match : MonoBehaviour
     #region Private Variables
     private List<Card> cards = new List<Card>();
     private HashSet<Card> selectedCards = new HashSet<Card>();
-    private int pairsAmount;
-    private bool isGameActive = false;
     private float startTime = 0;
-    private int triesCount = 0;
-    private int correctTries = 0;
     #endregion
+
+    private int pairsAmount => cardsAmount / pairsSize;
 
     private void Update()
     {
-        if (!isGameActive)
+        var hasPlayer = GameManager.currentPlayer?.currentGame != null;
+        if (!hasPlayer || !GameManager.currentPlayer.currentGame.isOn)
             return;
 
         var time = Time.time - startTime;
         var mins = (int)(time / 60);
         var secs = (int)(time % 60);
         textTime.text = TEXT_TIME + string.Format("{0:D2}:{1:D2}", mins, secs);
+        GameManager.currentPlayer.currentGame.time = (int)time;
     }
 
     [ContextMenu("New Match")]
     public void NewMatch()
     {
         winView.gameObject.SetActive(false);
+        textTries.text = TEXT_TRIES + "00";
 
         ClearCards();
         InstantiateNewCards();
-        ShuffleCards();
 
-        isGameActive = true;
+        int loadedCards = GameManager.instance.unitSprites.Length;
+        int[] units = GetRandomCardsId(cardsAmount, loadedCards);
+        int[] order = GetShuffleSequence(cardsAmount);
+
+        var sequence = new CardsSequence(units, order);
+        ApplySequenceToCards(cards, sequence);
+
         startTime = Time.time;
-        triesCount = 0;
-        correctTries = 0;
-        textTries.text = TEXT_TRIES + triesCount.ToString("D2");
+        GameManager.currentPlayer.currentGame = new MatchStats(sequence);
+    }
+
+    public void LoadMatch()
+    {
+        winView.gameObject.SetActive(false);
+
+        ClearCards();
+        InstantiateNewCards();
+
+        var game = GameManager.currentPlayer.currentGame;
+        ApplySequenceToCards(cards, game.cardsSequence);
+
+        startTime = Time.time - game.time;
+        textTries.text = TEXT_TRIES + (game.matchedCards.Count / pairsSize).ToString("D2");
+
+        StartCoroutine(FlipMatchedCards());
+    }
+
+    /// <summary>
+    /// Flip all matched cards from a previous game
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator FlipMatchedCards()
+    {
+
+        int count = 0;
+        foreach (var index in GameManager.currentPlayer.currentGame.matchedCards)
+        {
+            yield return new WaitForSeconds(0.2f);
+            var card = cardsView.GetChild(index).GetComponent<Card>();
+            card.Flip();
+            card.MatchFound(0);
+            card.interactable = false;
+
+            if(count % pairsSize == 0)
+            {
+                var position = count / pairsSize;
+                var foundCard = foundCardsHolder.GetChild(position).GetComponent<Card>();
+                foundCard.SetAsFoundCard(card.unitImage, .7f);
+            }
+
+            count++;
+        }
     }
 
     [ContextMenu("Reveal")]
-    private void ShowAll()
+    private void ShowAll() //for debugging
     {
         foreach (var card in cards)
         {
@@ -69,6 +117,9 @@ public class Match : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Remove all cards from the game and reset the selected cards tab
+    /// </summary>
     public void ClearCards()
     {
         //remove all cards
@@ -87,71 +138,76 @@ public class Match : MonoBehaviour
 
     private void InstantiateNewCards()
     {
-        int loadedCards = GameManager.instance.unitSprites.Length;
-        pairsAmount = cardsAmount / 3;
+        for (int i = 0; i < cardsAmount; i++)
+        {
+            var card = Instantiate(cardPrefab, cardsView);
+            card.button.onClick.AddListener(() => OnSelectCard(card));
+            cards.Add(card);
+            card.name = i.ToString("D2");
+        }
+    }
 
-        //get random cards
+    /// <summary>
+    /// Get random unique index list of size in a range
+    /// </summary>
+    /// <param name="size">size of the return list</param>
+    /// <param name="range">range of unique numbers to be selected</param>
+    private int[] GetRandomCardsId(int size, int range)
+    {
+        int leftAmount = size - pairsAmount * pairsSize;
+
+        //get random units
         HashSet<int> randomChosenCards = new HashSet<int>();
         do
         {
-            randomChosenCards.Add(UnityEngine.Random.Range(0, loadedCards));
+            randomChosenCards.Add(UnityEngine.Random.Range(0, range));
         }
-        while (randomChosenCards.Count < pairsAmount);
+        while (randomChosenCards.Count < pairsAmount + leftAmount);
 
-        //instantiate cards sequence
-        foreach (int id in randomChosenCards)
+        return randomChosenCards.ToArray();
+    }
+
+    private int[] GetShuffleSequence(int size)
+    {
+        int[] order = new int[size];
+        for (int i = 0; i < size; i++)
+            order[i] = i;
+
+        return order.OrderBy(x => UnityEngine.Random.value).ToArray();
+    }
+
+    private void ApplySequenceToCards(IList<Card> cards, CardsSequence sequence)
+    {
+        int count = cards.Count;
+
+        //add unit sprites to cards
+        int i = 0;
+        foreach (var unitId in sequence.units)
         {
-            for (int i = 0; i < 3; i++)
+            for (int j = 0; j < pairsSize && i < count; j++, i++)
             {
-                var card = Instantiate(cardPrefab, cardsView);
-                card.unitImage = GameManager.instance.unitSprites[id];
-                cards.Add(card);
+                cards[i].unitImage = GameManager.instance.unitSprites[unitId];
             }
         }
 
-        //instantiate left cards - the ones that will not have enough pairs
-        int leftCardId = 0;
-        int leftAmount = cardsAmount - pairsAmount * 3;
-
-        do
+        //set the order
+        for (int j = 0; j < count; j++)
         {
-            leftCardId = UnityEngine.Random.Range(0, loadedCards);
-        }
-        while (randomChosenCards.Contains(leftCardId));
-
-        for (int i = 0; i < leftAmount; i++)
-        {
-            var card = Instantiate(cardPrefab, cardsView);
-            card.unitImage = GameManager.instance.unitSprites[leftCardId];
-            cards.Add(card);
-        }
-
-        //add event to all cards at once just to stay organized
-        foreach (var card in cards)
-            card.button.onClick.AddListener(() => OnSelectCard(card));
-    }
-
-    private void ShuffleCards()
-    {
-        int amount = cards.Count;
-        var randList = cards.OrderBy(x => UnityEngine.Random.value).ToArray();
-        for (int i = 0; i < randList.Length; i++)
-        {
-            //changing the hierarchy order is enough to shuffle
-            randList[i].transform.SetSiblingIndex(i);
+            var position = sequence.order[j];
+            cards[position].transform.SetSiblingIndex(j);
         }
     }
 
     private void OnSelectCard(Card card)
     {
         card.Flip();
-        card.SetInteractionEnabled(false);
+        card.interactable = false;
         selectedCards.Add(card);
 
-        if (selectedCards.Count == 3)
+        if (selectedCards.Count == pairsSize)
         {
-            triesCount++;
-            textTries.text = TEXT_TRIES + triesCount.ToString("D2");
+            var tries = ++GameManager.currentPlayer.currentGame.tries;
+            textTries.text = TEXT_TRIES + tries.ToString("D2");
             StartCoroutine(CheckResult());
         }
     }
@@ -161,7 +217,7 @@ public class Match : MonoBehaviour
         //lock all cards interaction;
         foreach (var card in cards)
         {
-            card.SetInteractionEnabled(false);
+            card.interactable = false;
         }
 
         //w8 a bit :)
@@ -184,29 +240,31 @@ public class Match : MonoBehaviour
                 img = card.unitImage;
         }
 
-        if (cardsMatch) //CORRECT
+        if (cardsMatch) //!CORRECT
         {
             int id = 0;
             foreach (var card in selectedCards)
             {
+                var cardId = card.transform.GetSiblingIndex();
+                GameManager.currentPlayer.currentGame.matchedCards.Add(cardId);
                 card.MatchFound(id * 0.1f);
                 id++;
             }
 
             //Add card to found cards deck
-            var foundCard = foundCardsHolder.GetChild(correctTries).GetComponent<Card>();
+            var deckId = GameManager.currentPlayer.currentGame.matchedCards.Count / pairsSize -1;
+            var foundCard = foundCardsHolder.GetChild(deckId).GetComponent<Card>();
             foundCard.SetAsFoundCard(img, .7f);
-
-            correctTries++;
         }
-        else            //WRONG
+        else            //!WRONG
         {
             foreach (var card in selectedCards)
                 card.Flip();
         }
 
         //check for win game
-        if (correctTries >= pairsAmount)
+        var foundPairs = GameManager.currentPlayer.currentGame.matchedCards.Count / pairsSize;
+        if (foundPairs >= pairsAmount)
         {
             Won();
         }
@@ -215,7 +273,7 @@ public class Match : MonoBehaviour
             //enable cards interaction
             foreach (var card in cards)
                 if (!card.match)
-                    card.SetInteractionEnabled(true);
+                    card.interactable = true;
         }
 
         selectedCards.Clear();
@@ -224,9 +282,8 @@ public class Match : MonoBehaviour
     [ContextMenu("Win game")]
     private void Won()
     {
-        isGameActive = false;
-
-        GameManager.OnFinishMatch((int)(Time.time - startTime), triesCount);
+        GameManager.currentPlayer.FinishGame();
+        GameManager.OnFinishMatch();
         winView.gameObject.SetActive(true);
     }
 }

@@ -23,12 +23,11 @@ public class GameManager : MonoBehaviour
     #region Properties
     public Sprite[] unitSprites { get; private set; }
     public Sprite[] unitLockSprites { get; private set; }
-    public GameState gameState { get; private set; }
+    public Sessions gameState { get; private set; }
     #endregion
 
-    #region Private Variables
-    private string currentPlayer;
-    #endregion
+    public static Player currentPlayer { get; private set; }
+
 
     #region Class Methods
     private void Awake()
@@ -47,6 +46,11 @@ public class GameManager : MonoBehaviour
         LoadUnits();
     }
 
+    private void OnDestroy()
+    {
+        SaveGame();
+    }
+
     /// <summary>
     /// Load all unit images from Resource folder
     /// </summary>
@@ -63,7 +67,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void LoadGameOrDefault()
     {
-        gameState = new GameState();
+        gameState = new Sessions();
 
         //try to load
         if (PlayerPrefs.HasKey(SAVE_GAME))
@@ -89,7 +93,11 @@ public class GameManager : MonoBehaviour
     {
         loginView.SetActive(false);
         gameView.SetActive(true);
-        match.NewMatch();
+
+        if(currentPlayer.currentGame != null && currentPlayer.currentGame.isOn)
+            match.LoadMatch();
+        else
+            match.NewMatch();
     }
 
     /// <summary>
@@ -115,23 +123,21 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        instance.currentPlayer = playerName;
+        currentPlayer = instance.gameState.GetPlayer(playerName);
 
-        if (!instance.gameState.ContainsPlayer(playerName))
-            instance.gameState.AddPlayer(playerName);
+        if (currentPlayer == null)
+            currentPlayer = instance.gameState.AddPlayer(playerName);
 
         instance.StartGame();
     }
 
-    public static void OnFinishMatch(int time, int tries)
+    public static void OnFinishMatch()
     {
         if (!instance)
         {
             Debug.LogError("No GameManager instance in the scene");
             return;
         }
-
-        instance.gameState.UpdateScore(instance.currentPlayer, time, tries);
 
         instance.SaveGame();
     }

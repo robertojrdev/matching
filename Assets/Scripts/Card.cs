@@ -21,9 +21,16 @@ public class Card : MonoBehaviour
     #endregion
 
     #region Properties
+    public int unitIndex { get; set; }
     public bool match { get; private set; }
     public bool flipped { get; private set; }
+    
+    /// <summary>
+    ///  this does not check if the button is null
+    /// </summary>
+    public bool interactable { get => button.interactable; set => button.interactable = value; }//helper
     #endregion
+
 
     private void Awake()
     {
@@ -49,11 +56,6 @@ public class Card : MonoBehaviour
         }
     }
 
-    public void SetInteractionEnabled(bool enabled)
-    {
-        button.interactable = enabled; //helper
-    }
-
     /// <summary>
     /// Call when this card has been matched
     /// </summary>
@@ -73,7 +75,7 @@ public class Card : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        if(func != null)
+        if (func != null)
             func.Invoke();
 
         animator.SetTrigger(ANIMATION_MATCH);
